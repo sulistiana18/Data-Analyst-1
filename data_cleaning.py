@@ -12,7 +12,7 @@ need_updt = pd.read_excel(file, sheet_name='need update SAP')
 data_pekerja = pd.read_excel(file, sheet_name='data')
 
 # Olah Sheet Data Pelatihan
-
+   
 #print(Data_Pelatihan.head(5)) # Menampilkan 5 baris pertama dari Data Pelatihan
 
 # menampilkan semua nama kolom (di baris 1) dari Data Pelatihan
