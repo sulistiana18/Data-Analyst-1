@@ -36,4 +36,6 @@ def clean_pekerja(df):
     # drop kolom kosong
     df = df.loc[:, (df != "NULL").any()]
 
+    df = df.rename(columns={"nopek": "id_pekerja"})
+
     return df

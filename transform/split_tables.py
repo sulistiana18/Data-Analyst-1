@@ -1,28 +1,25 @@
-def split_tables(df_pekerja, df_pelatihan):
+import pandas as pd
 
-    # df = df.copy()
+def split_tables(df_pekerja, df_pelatihan, df_kode_pelatihan):
 
     # =========================
     # DIM PEKERJA
     # =========================
     pekerja = df_pekerja[
-        ["bagian", "fungsi", "nama", "nopek"]
+        ["id_pekerja", "nama", "fungsi", "bagian", "gender"]
     ].drop_duplicates().reset_index(drop=True)
 
     # =========================
-    # DIM PELATIHAN
+    # FACT PELATIHAN
     # =========================
     pelatihan = df_pelatihan[
-        ["training_id", "nama_pelatihan", "jenis_pelatihan", "skill_group",]
-    ].drop_duplicates().reset_index(drop=True)
-
-    # =========================
-    # FACT TABLE
-    # =========================
-    training_record = df_pelatihan[
         [
             "id_pekerja",
             "training_id",
+            "jenis_pelatihan",
+            "layering",
+            "skill_group",
+            "educational_establishment",
             "start_date",
             "end_date",
             "bulan",
@@ -32,10 +29,34 @@ def split_tables(df_pekerja, df_pelatihan):
             "expire_date",
             "month_ed",
             "year_ed",
+            "nama_lembaga_sertifikasi",
+            "tgl_terima_sertifikat",
             "sumber_data"
         ]
-    ].reset_index(drop=True)
+    ].copy()
+    
+    # 🔥 NORMALISASI NULL DULU
+    pelatihan = pelatihan.replace("NULL", pd.NA)
+    pelatihan = pelatihan.replace("", pd.NA)
 
-    training_record.insert(0, "record_id", range(1, len(training_record) + 1))
+    # 🔥 HAPUS DUPLIKAT
+    pelatihan = pelatihan.drop_duplicates()
 
-    return pekerja, pelatihan, training_record
+    # 🔥 HAPUS ROW YANG BENAR-BENAR KOSONG
+    pelatihan = pelatihan.dropna(how='all')
+
+    # 🔥 RESET INDEX
+    pelatihan = pelatihan.reset_index(drop=True)
+
+    # 🔥 GENERATE ET ID
+    pelatihan.insert(0, "record_id", pelatihan.index + 1)
+    pelatihan["record_id"] = pelatihan["record_id"].apply(lambda x: f"ET{x:05}")
+
+
+
+    # =========================
+    # KODE PELATIHAN
+    # =========================
+    kode_pelatihan = df_kode_pelatihan.copy()
+
+    return pekerja, pelatihan, kode_pelatihan
